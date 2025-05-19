@@ -14,7 +14,7 @@ Route::post('/login', [AuthController::class, 'login']);
 /**
  * protected route
  */
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'checkUserStatus', 'logRequest'])->group(function () {
     // Authentication
     Route::post('/logout', [AuthController::class, 'logout']);
     

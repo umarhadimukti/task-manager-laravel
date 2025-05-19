@@ -12,7 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->append([
+            \App\Http\Middleware\LogRequest::class,
+        ]);
+
+        $middleware->alias([
+            'logRequest' => \App\Http\Middleware\LogRequest::class,
+            'checkUserStatus' => \App\Http\Middleware\CheckUserStatus::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
