@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -21,28 +23,23 @@ class AuthController extends Controller
      */
     public function login(Request $request, LoginRequest $loginRequest)
     {
-        dd($request);
-        // Attempt to authenticate the user
-        if (!Auth::attempt($loginRequest->only('email', 'password'))) {
+        $user = User::where('email', $loginRequest->email)->first();
+
+        if (!$user || !Hash::check($loginRequest->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['invalid email or password.'],
+                'email' => ['invalid email address or password.'],
             ]);
         }
 
-        $user = $request->user();
-
-        // check if the user is active
         if (!$user->isActive()) {
             throw ValidationException::withMessages([
-                'email' => ['your account is inactive, please contact the administrator.'],
+                'email' => ['your account is inactive. please contact an administrator.'],
             ]);
         }
 
-        // create a new token
-        $token = $user->createToken('api_token')->plainTextToken;
-
-        // log the login activity
-        ActivityLog::log($user->id, 'login', 'user logged in');
+        $token = $user->createToken('auth-token')->plainTextToken;
+        
+        ActivityLog::log($user->id, 'user_login', "user {$user->email} logged in");
 
         return response()->json([
             'success' => true,
@@ -65,7 +62,7 @@ class AuthController extends Controller
         $user = $request->user();
         
         // Log the logout activity
-        ActivityLog::log($user->id, 'logout', 'user logged out');
+        ActivityLog::log($user->id, 'user_logout', 'user logged out');
         
         // Revoke the token that was used to authenticate the current request
         $user->currentAccessToken()->delete();
