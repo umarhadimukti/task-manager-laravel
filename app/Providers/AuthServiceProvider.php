@@ -61,7 +61,7 @@ class AuthServiceProvider extends ServiceProvider
             return false;
         });
 
-        Gate::define('assign-tasks', function (User $user, User $assignee = null) {
+        Gate::define('assign-tasks', function (User $user, User $assignee) {
             if ($user->isAdmin()) {
                 return true;
             }
