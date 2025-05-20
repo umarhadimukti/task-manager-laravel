@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Task Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #3949ab;
+            color: white;
+            padding-top: 20px;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 10px 20px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .content-wrapper {
+            padding: 20px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: #3949ab;
+            border-color: #3949ab;
+        }
+        .btn-primary:hover {
+            background-color: #303f9f;
+            border-color: #303f9f;
+        }
+        .badge-pending {
+            background-color: #ffc107;
+        }
+        .badge-in-progress {
+            background-color: #17a2b8;
+        }
+        .badge-done {
+            background-color: #28a745;
+        }
+        .user-info {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 15px;
+        }
+        .user-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .user-role {
+            opacity: 0.8;
+            font-size: 0.85rem;
+        }
+        .admin-section, .manager-section, .staff-section {
+            display: none;
+        }
+        .task-card {
+            transition: all 0.3s;
+        }
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .due-date-warning {
+            color: #dc3545;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role" id="userRole">Loading...</div>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="tasksNav">
+                            <i class="fas fa-tasks"></i> Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item admin-section manager-section">
+                        <a class="nav-link" href="#" id="usersNav">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                    </li>
+                    <li class="nav-item admin-section">
+                        <a class="nav-link" href="#" id="logsNav">
+                            <i class="fas fa-history"></i> Activity Logs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content Area -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-wrapper">
+                <!-- Tasks View -->
+                <div id="tasksView">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Task Dashboard</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <button type="button" class="btn btn-sm btn-primary" id="createTaskBtn">
+                                <i class="fas fa-plus"></i> New Task
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span>Pending</span>
+                                    <span class="badge bg-secondary" id="pendingCount">0</span>
+                                </div>
+                                <div class="card-body" id="pendingTasks">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading tasks...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span>In Progress</span>
+                                    <span class="badge bg-secondary" id="inProgressCount">0</span>
+                                </div>
+                                <div class="card-body" id="inProgressTasks">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading tasks...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span>Done</span>
+                                    <span class="badge bg-secondary" id="doneCount">0</span>
+                                </div>
+                                <div class="card-body" id="doneTasks">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading tasks...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users View -->
+                <div id="usersView" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">User Management</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0 admin-section">
+                            <button type="button" class="btn btn-sm btn-primary" id="createUserBtn">
+                                <i class="fas fa-user-plus"></i> New User
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Users List</h5>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="userSearchInput" placeholder="Search users...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th class="admin-section">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                <i class="fas fa-spinner fa-spin"></i> Loading users...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logs View -->
+                <div id="logsView" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Activity Logs</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <div class="input-group">
+                                <input type="date" class="form-control form-control-sm" id="logDateFilter">
+                                <button class="btn btn-sm btn-outline-secondary" id="resetLogFilter">
+                                    <i class="fas fa-sync-alt"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Action</th>
+                                            <th>Description</th>
+                                            <th>Date & Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="logsTableBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center">
+                                                <i class="fas fa-spinner fa-spin"></i> Loading logs...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskModalLabel">Create New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="taskForm">
+                        <input type="hidden" id="taskId">
+                        <div class="mb-3">
+                            <label for="taskTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="taskTitle" required>
+                            <div class="invalid-feedback">Task title is required</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="taskDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="taskDescription" rows="3" required></textarea>
+                            <div class="invalid-feedback">Task description is required</div>
+                        </div>
+                        <div class="mb-3 manager-section admin-section">
+                            <label for="assignedTo" class="form-label">Assign To</label>
+                            <select class="form-select" id="assignedTo">
+                                <option value="">Loading users...</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a user to assign</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="taskStatus" class="form-label">Status</label>
+                            <select class="form-select" id="taskStatus" required>
+                                <option value="pending">Pending</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="done">Done</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="taskDueDate" class="form-label">Due Date</label>
+                            <input type="date" class="form-control" id="taskDueDate" required>
+                            <div class="invalid-feedback">Please provide a valid due date</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel">Create New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <input type="hidden" id="userId">
+                        <div class="mb-3">
+                            <label for="userName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="userNameInput" required>
+                            <div class="invalid-feedback">Name is required</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="userEmail" required>
+                            <div class="invalid-feedback">Please provide a valid email address</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="userPassword">
+                            <div class="form-text">Leave blank if updating an existing user without changing password</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userRole" class="form-label">Role</label>
+                            <select class="form-select" id="userRoleInput" required>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userStatus" class="form-label">Status</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="userStatus" checked>
+                                <label class="form-check-label" for="userStatus">Active</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveUserBtn">Save User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskDetailModalLabel">Task Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4 id="detailTaskTitle">Task Title</h4>
+                    <div class="mb-3">
+                        <span class="badge" id="detailTaskStatus">Status</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p id="detailTaskDescription">Task description goes here...</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Assigned To:</strong>
+                        <p id="detailTaskAssignee">User Name</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Due Date:</strong>
+                        <p id="detailTaskDueDate">2023-06-30</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Created By:</strong>
+                        <p id="detailTaskCreator">Creator Name</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="editTaskBtn">Edit</button>
+                    <button type="button" class="btn btn-danger" id="deleteTaskBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
