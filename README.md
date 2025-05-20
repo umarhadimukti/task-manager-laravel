@@ -108,32 +108,8 @@ This is a task management system built with Laravel backend and Vanilla JS front
 The system includes comprehensive tests:
 - Unit tests for business logic
 - Feature tests for API endpoints and authentication
-- Coverage reporting via `php artisan test --coverage`
+- Coverage reporting via `php artisan test`
 
-## 📂 Project Structure
-
-```
-├── app/
-│   ├── Http/
-│   ├── Models/
-│   ├── Policies/
-│   ├── Services/
-│   ├── Console/Commands/CheckOverdueTasks.php
-├── routes/
-│   └── api.php
-├── resources/
-│   └── views/
-│       └── dashboard.html (optional)
-├── tests/
-│   ├── Feature/
-│   └── Unit/
-├── public/
-│   └── frontend/
-│       └── index.html
-├── .env.example
-├── README.md
-└── docker-compose.yml (optional)
-```
 
 ## ⚙️ Installation
 
@@ -192,4 +168,3 @@ The system includes comprehensive tests:
 ## Screenshot
 ![Tampilan login](docs/ss1.png)
 ![Tampilan dashboard](docs/ss2.png)
-```
