@@ -189,6 +189,11 @@ The system includes comprehensive tests:
 
 3. Navigate the dashboard according to your role permissions
 
+## Screenshot
+![Tampilan login](docs/ss1.png)
+![Tampilan dashboard](docs/ss2.png)
+```
+
 ## 🔄 Scheduled Tasks
 
 The system includes a Laravel scheduler for checking overdue tasks:
