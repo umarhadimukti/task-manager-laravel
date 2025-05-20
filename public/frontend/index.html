@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .app-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #3949ab;
+        }
+        .login-btn {
+            background-color: #3949ab;
+            border-color: #3949ab;
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+        }
+        .login-btn:hover {
+            background-color: #303f9f;
+            border-color: #303f9f;
+        }
+        .form-error {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h2 class="app-title">Task Management System</h2>
+            <div id="loginAlert" class="alert alert-danger d-none" role="alert"></div>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" required>
+                    <div class="form-error" id="emailError">Please enter a valid email address</div>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                    <div class="form-error" id="passwordError">Password is required</div>
+                </div>
+                <button type="submit" class="btn btn-primary login-btn" id="loginButton">
+                    <span id="loginSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <span id="loginText">Login</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const loginAlert = document.getElementById('loginAlert');
+            const loginButton = document.getElementById('loginButton');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const loginText = document.getElementById('loginText');
+
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let isValid = true;
+
+                // Reset errors
+                emailError.style.display = 'none';
+                passwordError.style.display = 'none';
+                loginAlert.classList.add('d-none');
+
+                // Email validation
+                if (!validateEmail(emailInput.value)) {
+                    emailError.style.display = 'block';
+                    isValid = false;
+                }
+
+                // Password validation
+                if (passwordInput.value.trim() === '') {
+                    passwordError.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    // Show loading state
+                    loginButton.disabled = true;
+                    loginSpinner.classList.remove('d-none');
+                    loginText.textContent = 'Logging in...';
+
+                    // Perform login
+                    login(emailInput.value, passwordInput.value)
+                        .then(response => {
+                            const token = response.data.token;
+                            const user = response.data.user;
+                            if (token) {
+                                // Store token and user data
+                                localStorage.setItem('token', token);
+                                localStorage.setItem('user', JSON.stringify(user));
+                                
+                                // Redirect to dashboard
+                                window.location.href = 'dashboard.html';
+                            } else {
+                                showLoginError('Authentication failed. Please check your credentials.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Login error:', error);
+                            showLoginError('Authentication failed. Please check your credentials.');
+                        })
+                        .finally(() => {
+                            // Reset loading state
+                            loginButton.disabled = false;
+                            loginSpinner.classList.add('d-none');
+                            loginText.textContent = 'Login';
+                        });
+                }
+            });
+
+            function validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            function showLoginError(message) {
+                loginAlert.textContent = message;
+                loginAlert.classList.remove('d-none');
+            }
+        });
+    </script>
+</body>
+</html>
