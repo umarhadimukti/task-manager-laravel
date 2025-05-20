@@ -36,7 +36,7 @@ class UserRequest extends FormRequest
 
         // for updating an existing user
         if ($this->isMethod('put') || $this->isMethod('patch')) {
-            $userId = $this->route('user')->id;
+            $userId = $this->route('users')->id;
             $rules['email'] = ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($userId)];
             $rules['password'] = ['sometimes', 'nullable', 'string', 'min:8'];
         }
