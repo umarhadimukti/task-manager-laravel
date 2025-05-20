@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TaskRequest extends FormRequest
@@ -11,7 +12,7 @@ class TaskRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +22,14 @@ class TaskRequest extends FormRequest
      */
     public function rules(): array
     {
+        $statusRule = Rule::in(['pending', 'in_progress', 'done']);
+
         return [
-            //
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'assigned_to' => 'sometimes|required|string|exists:users,id',
+            'status' => "sometimes|required|{$statusRule}",
+            'due_date' => 'sometimes|required|date|after_or_equal:today',
         ];
     }
 }
