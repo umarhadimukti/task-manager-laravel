@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Task;
 use App\Models\ActivityLog;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CheckOverdueTasks extends Command
 {
@@ -27,29 +28,27 @@ class CheckOverdueTasks extends Command
      */
     public function handle()
     {
-        $today = now()->startOfDay();
-        
-        // get tasks that are overdue but not marked as done
         $overdueTasks = Task::where('status', '!=', 'done')
-            ->whereDate('due_date', '<', $today)
+            ->where('due_date', '<', now()->format('Y-m-d'))
             ->get();
-            
+
         $count = 0;
-        
         foreach ($overdueTasks as $task) {
-            // check if the task has already been marked as overdue in logs
-            // this prevents multiple logs for the same overdue task
-            ActivityLog::log(
-                'task_overdue',
-                "task overdue: {$task->id} - {$task->title}",
-                $task->created_by
-            );
+            // Create activity log for each overdue task
+            ActivityLog::create([
+                'user_id' => $task->assigned_to,
+                'action' => 'task_overdue',
+                'description' => "Task overdue: {$task->id}",
+                'logged_at' => now(),
+            ]);
+
+            // Also log to application log file
+            Log::channel('daily')->warning("Task {$task->id} is overdue. Due date was: {$task->due_date}");
             
             $count++;
         }
-        
-        $this->info("found {$count} overdue tasks and logged them.");
-        
+
+        $this->info("Found {$count} overdue tasks");
         return Command::SUCCESS;
     }
 }
