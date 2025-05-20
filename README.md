@@ -193,10 +193,3 @@ The system includes comprehensive tests:
 ![Tampilan login](docs/ss1.png)
 ![Tampilan dashboard](docs/ss2.png)
 ```
-
-## 🔄 Scheduled Tasks
-
-The system includes a Laravel scheduler for checking overdue tasks:
-```
-* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
-```
