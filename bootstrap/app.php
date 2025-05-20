@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\CheckOverdueTasks;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,6 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'checkUserStatus' => \App\Http\Middleware\CheckUserStatus::class,
         ]);
     })
+    ->withCommands([
+        CheckOverdueTasks::class,
+    ])
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
