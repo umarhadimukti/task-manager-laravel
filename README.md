@@ -91,18 +91,6 @@ This is a task management system built with Laravel backend and Vanilla JS front
 | DELETE | /tasks/{id}   | Delete task                 | Admin or Creator     |
 | GET    | /logs         | View activity logs          | Admin only           |
 
-## 📱 Frontend Pages
-
-- **Login Page**: Authentication
-- **Task Dashboard**: 
-  - Task listing with filters
-  - Status indicators
-  - Role-based UI elements
-  - Form validation
-- **Admin Page** (admin only):
-  - User management
-  - User status toggle
-
 ## 🧪 Testing
 
 The system includes comprehensive tests:
